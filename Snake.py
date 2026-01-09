@@ -24,6 +24,7 @@ class Snake:
     def __init__(self):
         self.body = [Vector2(5,10), Vector2(6,10), Vector2(7,10)]
         self.direction = Vector2(1,0)
+        self.new_block = False
 
     def draw_snake(self):
         for block in self.body:
@@ -33,16 +34,23 @@ class Snake:
             pygame.draw.rect(screen, pygame.Color('orange'), snake_rect)
     
     def move_snake(self):
-        body_copy = self.body[:-1]
-        body_copy.insert(0, self.body[0] + self.direction)
-        self.body = body_copy
+        if self.new_block is True:
+            body_copy = self.body[:]
+            body_copy.insert(0, self.body[0] + self.direction)
+            self.body = body_copy
+            self.new_block = False
+        else:
+            body_copy = self.body[:-1]
+            body_copy.insert(0, self.body[0] + self.direction)
+            self.body = body_copy
 
     def change_direction(self, direction):
         if self.direction.x != direction.x and self.direction.y != direction.y:
             self.direction = direction
 
-    def grow(self):
-        self.body.insert(len(self.body) - 1, self.body[-1])
+    def add_block(self):
+        self.new_block = True
+        # self.body.insert(len(self.body) - 1, self.body[-1])
 
 
 class Main:
@@ -61,7 +69,10 @@ class Main:
     def check_collision(self):
         if self.fruit.pos == self.snake.body[0]:
             self.fruit.randomize_fruit()
-            self.snake.grow()
+            while self.fruit.pos in self.snake.body[1:]:
+                self.fruit.randomize_fruit()
+            self.snake.add_block()
+    
 
 
 # pygame setup
