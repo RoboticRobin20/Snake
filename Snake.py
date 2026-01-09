@@ -29,8 +29,8 @@ class Snake:
         for block in self.body:
             x_pos = int(block.x * cellsize)
             y_pos = int(block.y * cellsize)
-            fruit_rect = pygame.Rect(x_pos, y_pos, cellsize, cellsize)
-            pygame.draw.rect(screen, pygame.Color('orange'), fruit_rect)
+            snake_rect = pygame.Rect(x_pos, y_pos, cellsize, cellsize)
+            pygame.draw.rect(screen, pygame.Color('orange'), snake_rect)
     
     def move_snake(self):
         body_copy = self.body[:-1]
@@ -52,10 +52,17 @@ class Main:
     
     def update(self):
         self.snake.move_snake()
+        self.check_collision()
 
     def draw_elements(self):
         self.fruit.draw_fruit()
         self.snake.draw_snake()
+
+    def check_collision(self):
+        if self.fruit.pos == self.snake.body[0]:
+            self.fruit.randomize_fruit()
+            self.snake.grow()
+
 
 # pygame setup
 pygame.init()
