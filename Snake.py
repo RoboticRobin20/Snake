@@ -48,6 +48,9 @@ class Snake:
         self.snake_body_tr = pygame.image.load('Graphics/body_tr.png').convert_alpha()
         self.snake_body_bl = pygame.image.load('Graphics/body_bl.png').convert_alpha()
         self.snake_body_br = pygame.image.load('Graphics/body_br.png').convert_alpha()
+        
+        # Load crunch sound
+        self.crunch_sound = pygame.mixer.Sound('Sound/crunch.wav')
 
     def draw_snake(self):
         self.update_head_graphics()
@@ -117,6 +120,12 @@ class Snake:
         self.new_block = True
         # self.body.insert(len(self.body) - 1, self.body[-1])
 
+    def reset(self):
+        self.body = [Vector2(5,10), Vector2(4,10), Vector2(3,10)]
+        self.direction = Vector2(1,0)
+    
+    def play_crunch_sound(self):
+        self.crunch_sound.play()
 
 class Main:
     def __init__(self):
@@ -155,7 +164,13 @@ class Main:
         score_x = int(cellsize * cellnumber - 60)
         score_y = int(cellsize * cellnumber - 40)
         score_rect = score_surface.get_rect(center = (score_x,score_y))
+        apple_rect = apple.get_rect(midright = (score_rect.left, score_rect.centery))
+        bg_rect = pygame.rect.Rect(apple_rect.left, apple_rect.top, apple_rect.width + score_rect.width + 6,    apple_rect.height)
+        
+        pygame.draw.rect(screen,(167,209,61),bg_rect)
         screen.blit(score_surface,score_rect)
+        screen.blit(apple, apple_rect)
+        pygame.draw.rect(screen,(65,74,12),bg_rect,2)
 
     def check_collision(self):
         if self.fruit.pos == self.snake.body[0]:
@@ -163,6 +178,7 @@ class Main:
             while self.fruit.pos in self.snake.body[1:]:
                 self.fruit.randomize_fruit()
             self.snake.add_block()
+            self.snake.play_crunch_sound()
     
     def check_failure(self):
         if not 0 <= self.snake.body[0].x <= cellnumber or not 0 <= self.snake.body[0].y <= cellnumber:
@@ -172,11 +188,13 @@ class Main:
                 self.game_over()
 
     def game_over(self):
-        pygame.quit()
-        sys.exit()
+        # pygame.quit()
+        # sys.exit()
+        self.snake.reset()
 
 
 # pygame setup
+pygame.mixer.pre_init(44100,-16,2,512)
 pygame.init()
 cellsize = 40
 cellnumber = 20
